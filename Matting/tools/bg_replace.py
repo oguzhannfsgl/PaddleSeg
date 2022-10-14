@@ -120,6 +120,16 @@ def main(args):
                                  os.path.basename(args.image_path))
     cv2.imwrite(com_save_path, com)
 
+def merge_fg_bg(rgba_path, bg_path):
+    rgba_img = cv2.imread(rgba_path, cv2.IMREAD_UNCHANGED)
+    fg, alpha = rgba_img[...,:3], rgba_img[...,3]
+    bg = get_bg(bg_path, [alpha.shape[0], alpha.shape[1]])
+    alpha = alpha / 255.0
+    alpha = alpha[:, :, np.newaxis]
+    com = alpha * fg + (1 - alpha) * bg
+    com = com.astype('uint8')
+    cv2.imwrite('fg_bg_merged.png', com)
+    return com
 
 def get_bg(background, img_shape):
     bg = np.zeros(img_shape)
