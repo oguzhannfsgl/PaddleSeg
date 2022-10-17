@@ -339,7 +339,7 @@ class Predictor:
                 self.pred_cfg.set_trt_dynamic_shape_info(
                     min_input_shape, max_input_shape, opt_input_shape)
 
-    def run(self, img_path, trimap=None):
+    def run(self, img_path, out_save_path, trimap=None):
         input_names = self.predictor.get_input_names()
         input_handle = {}
 
@@ -374,14 +374,14 @@ class Predictor:
         trimap = trimap_inputs[0] if trimap is not None else None
         alpha = self._postprocess(results[0], trans_info[0], trimap=trimap)
         alpha = (alpha * 255).astype('uint8')
-        cv2.imwrite("alpha.jpg", alpha)
+        #cv2.imwrite(out_folder+"/alpha.jpg", alpha)
 
         ori_img = cv2.imread(img_path)
         fg = estimate_foreground_ml(ori_img / 255.0, alpha / 255.0) * 255
         fg = fg.astype('uint8')
         alpha = alpha[:, :, np.newaxis]
         rgba = np.concatenate([fg, alpha], axis=-1)
-        cv2.imwrite("rgba.png", rgba)
+        cv2.imwrite(out_save_path, rgba)
 
 
     def _preprocess(self, img, trimap=None):
